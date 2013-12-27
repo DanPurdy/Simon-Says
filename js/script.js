@@ -2,6 +2,7 @@ var game={ //game object
 	level: 1, //current level
 	turn: 0, //current turn
 	difficulty: 1, // user difficulty
+	classic: 1, //Whether to play in classic mode
 	score: 0, //current score
 	active: false, //whether a turn is active or not
 	handler: false, // whether the click and sound handlers are active
@@ -50,13 +51,22 @@ var game={ //game object
 
 	newLevel: function(){
 		
-		this.genSequence.length=0;
 		this.plaSequence.length=0;
 		this.pos=0;
 		this.turn=0;
 		this.active=true;
-		
-		this.randomizePad(this.level); //randomize pad with the correct amount of numbers for this level
+
+		if(this.classic !== 1){
+
+			this.genSequence.length=0;
+			this.randomizePad(this.level); //randomize pad with the correct amount of numbers for this level
+
+		}else if(this.classic ===1 && this.level ===1){
+
+			this.genSequence.length=0;
+			this.randomizePad(50);
+		}
+
 		this.displaySequence(); //show the user the sequence
 
 	},
@@ -88,8 +98,6 @@ var game={ //game object
 
 
 		var sound= $('.sound'+clip)[0];
-		console.log(sound);
-		console.log($('.sound'+clip));
 		sound.currentTime=0;				//resets audio position to the start of the clip
 		sound.play();						//play the sound
 
@@ -107,7 +115,7 @@ var game={ //game object
 	logPlayerSequence: function(pad){		//log the player selected pad to user array and call the checker function
 
 		this.plaSequence.push(pad);
-		this.checkSequence(pad);
+		this.checkSequence();
 		
 	
 	},
@@ -116,7 +124,7 @@ var game={ //game object
 
 		that=this;
 
-		if(pad !== this.genSequence[this.turn]){	//if not correct 
+		if(this.plaSequence[this.turn] !== this.genSequence[this.turn]){	//if not correct 
 				
 				this.incorrectSequence();
 
@@ -126,7 +134,7 @@ var game={ //game object
 
 			}
 
-		if(this.turn === this.genSequence.length){	//if completed the whole sequence
+		if(this.turn === this.level){	//if completed the whole sequence
 			
 			this.level++;							//increment level, display it, disable the pads wait 1 second and then reset the game
 			this.displayLevel();
@@ -147,7 +155,11 @@ var game={ //game object
 				
 				that.flash($(that.shape+val),1,300,val);
 			
-			},500*index*that.difficulty);				// multiply timeout by how many items in the array so that they play sequentially and multiply by the difficulty modifier
+			},500*index*that.difficulty);			// multiply timeout by how many items in the array so that they play sequentially and multiply by the difficulty modifier
+
+			if(index === that.level-1){
+				return false;
+			}
 		});
 	},
 
@@ -204,6 +216,7 @@ var game={ //game object
 
 		$('.start').show();								//enable the start button again and allow difficulty selection again
 		$('.difficulty').show();
+		$('.mode').show();
 
 	}
 
@@ -214,6 +227,8 @@ $(document).ready(function(){							//document ready
 		$(this).hide();
 		game.difficulty = $('input[name=difficulty]:checked').val();
 		$('.difficulty').hide();
+		game.classic = parseInt($('input[name=mode]:checked').val(),10);
+		$('.mode').hide();
 		game.init();
 
 
