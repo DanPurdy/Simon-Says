@@ -67,6 +67,10 @@ var game={ //game object
 			this.randomizePad(50);
 		}
 
+		if(this.classic ===1 && this.level > 50){
+			this.level = 50;
+		}
+
 		this.displaySequence(); //show the user the sequence
 
 	},
